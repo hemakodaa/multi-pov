@@ -1,6 +1,7 @@
 # read from offset file and determine the offset across different livers
 from constants import OFFSET_FOLDER
 import csv
+from exceptions import FileEmptyError
 from datetime import timedelta
 from pathlib import Path
 from enum import Enum, auto
@@ -13,15 +14,28 @@ class OffsetType(Enum):
 
 
 def open_csv(offset_file: str) -> list[dict]:
+
     try:
         with open(
             Path.cwd().joinpath(OFFSET_FOLDER).joinpath(offset_file), "r"
         ) as file:
             file = csv.DictReader(file, fieldnames=["streamer", "time", "url"])
+            if (
+                Path()
+                .cwd()
+                .joinpath(OFFSET_FOLDER)
+                .joinpath(offset_file)
+                .stat()
+                .st_size
+                == 0
+            ):
+                raise FileEmptyError("File is empty")
             return [dict for dict in file]
     except FileNotFoundError as e:
         print(e)
-        print(f"\n\nFile {offset_file} does not exist. Include the file's extension.\n\n")
+        print(
+            f"\n\nFile {offset_file} does not exist. Include the file's extension.\n\n"
+        )
 
 
 def safe_cast_to_int(string: str, default=None) -> int:
@@ -85,16 +99,15 @@ def offset_type(ref: timedelta, other: timedelta) -> OffsetType:
         return OffsetType.REFERENCE
 
 
-def offset(offset_file: str, reference=None) -> dict[str, list[dict] | str]:
+def offset(offset_file: str, reference: str) -> dict[str, list[dict] | str]:
     list_of_time = [streamer for streamer in open_csv(offset_file)]
     ref = ""
     # by default first line of the file is going to be the reference time
-    if not reference:
+    for dict in list_of_time:
+        if dict["streamer"] == reference:
+            ref = dict
+    if not ref:
         ref = list_of_time[0]
-    else:
-        for dict in list_of_time:
-            if dict["streamer"] == reference:
-                ref = dict
     for dict in list_of_time:
         dict["offset"] = calculate_offset(
             produce_timedelta(ref.get("time")), produce_timedelta(dict.get("time"))
