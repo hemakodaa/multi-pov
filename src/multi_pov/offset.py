@@ -13,10 +13,15 @@ class OffsetType(Enum):
 
 
 def open_csv(offset_file: str) -> list[dict]:
-    # add checks to make sure the offset file is correct
-    with open(Path.cwd().joinpath(OFFSET_FOLDER).joinpath(offset_file), "r") as file:
-        file = csv.DictReader(file, fieldnames=["streamer", "time", "url"])
-        return [dict for dict in file]
+    try:
+        with open(
+            Path.cwd().joinpath(OFFSET_FOLDER).joinpath(offset_file), "r"
+        ) as file:
+            file = csv.DictReader(file, fieldnames=["streamer", "time", "url"])
+            return [dict for dict in file]
+    except FileNotFoundError as e:
+        print(e)
+        print(f"\n\nFile {offset_file} does not exist. Include the file's extension.\n\n")
 
 
 def safe_cast_to_int(string: str, default=None) -> int:
@@ -25,7 +30,7 @@ def safe_cast_to_int(string: str, default=None) -> int:
     except (ValueError, TypeError) as e:
         print(e)
         print(
-            f"\n\nSummary: {string} is not an integer.\nMake sure timestamps only contains numbers and ':' separator in offset file."
+            f"\n\nSummary: {string} is not an integer.\nMake sure timestamps only contain numbers and ':' separator in offset file.\n\n"
         )
         return default
 

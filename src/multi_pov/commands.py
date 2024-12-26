@@ -3,7 +3,21 @@ from pathlib import Path
 from constants import YT_DLP, DOWNLOAD_FOLDER, FILENAME
 
 
-def generate_command(url: str, start: str, end: str, resolution: int):
+def timestamp_in_range(start: int, end: int) -> bool:
+    # check if adjusted start and end timestamps are within range
+    # of the particular video
+
+    # Explanation:
+    # negative timestamps tells yt-dlp to download from the end of the stream, instead of the start
+    # problem arise when start=0 AND end=0, it will download the entire VOD.
+    if start == 0 and end == 0:
+        return False
+    return True
+
+
+def download(url: str, start: str, end: str, resolution: int):
+    if not timestamp_in_range(start, end):
+        return f"Skipped {url}: timestamp out of range"
     download_sections_switch = "--download-sections"
     download_sections = f"*{start}-{end}"
     format_selection_switch = "-f"
@@ -23,3 +37,4 @@ def generate_command(url: str, start: str, end: str, resolution: int):
             url,
         ]
     )
+    return f"Downloaded: {url}"
