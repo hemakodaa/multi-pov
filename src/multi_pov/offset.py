@@ -39,7 +39,6 @@ def produce_timedelta(timestamp: str) -> timedelta:
     # turn timestamp string into a timedelta object
     # for convenient operations.
     split = timestamp.split(":")
-    print(split)
     # timedelta cannot accept strings, it has to be integers
     # meaning "4:01" <-- "01" would error
     # thus lstrip("0")
