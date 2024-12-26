@@ -86,14 +86,13 @@ def offset(offset_file: str, reference=None) -> dict[str, list[dict] | str]:
     ref = ""
     # by default first line of the file is going to be the reference time
     if not reference:
-        ref = list_of_time[0].get("time")
+        ref = list_of_time[0]
     else:
         for dict in list_of_time:
             if dict["streamer"] == reference:
-                ref = dict.get("time")
+                ref = dict
     for dict in list_of_time:
         dict["offset"] = calculate_offset(
-            produce_timedelta(ref), produce_timedelta(dict.get("time"))
+            produce_timedelta(ref.get("time")), produce_timedelta(dict.get("time"))
         )
-    # return ref as the original dict instead
     return {"list": list_of_time, "ref": ref}

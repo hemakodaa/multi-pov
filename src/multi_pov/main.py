@@ -16,9 +16,9 @@ args = parser.parse_args()
 def adjusted_timestamps(t: str, offset: int):
     t_delta = produce_timedelta(t).total_seconds()
     delta = t_delta - offset
-    # account for offsets that would go out of range of the video
+    # TODO: account for offsets that would go out of range of the video
     # negative timestamps tells yt-dlp to download from the end of the stream, instead of the start
-    return 0 if delta < 0 else delta
+    return delta
 
 
 def main():
