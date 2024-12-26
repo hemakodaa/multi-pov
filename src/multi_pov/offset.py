@@ -31,8 +31,10 @@ def safe_cast_to_int(string: str, default=None) -> int:
 
 
 def produce_timedelta(timestamp: str) -> timedelta:
+    # turn timestamp string into a timedelta object
+    # for convenient operations.
     split = timestamp.split(":")
-    # timedelta cannot accept strings, has to be integers
+    # timedelta cannot accept strings, it has to be integers
     # meaning "4:01" <-- "01" would error
     # thus lstrip("0")
     if len(split) == 3:
@@ -58,6 +60,10 @@ def calculate_offset(ref: timedelta, other: timedelta) -> timedelta:
 
 
 def offset_type(ref: timedelta, other: timedelta) -> OffsetType:
+    # timedelta arithmetic operation results are unsigned, meaning
+    # we know the delta, but we don't know if it is BEFORE or AFTER the reference time.
+    # this enum states what operations should be used when calculating
+    # the final timestamp before downloading.
     if ref > other:
         return OffsetType.MINUS
     if ref < other:
@@ -68,14 +74,15 @@ def offset_type(ref: timedelta, other: timedelta) -> OffsetType:
 
 def offset(offset_file: str):
     list_of_time = [streamer for streamer in open_csv(offset_file)]
-    ref = list_of_time[0].get(
-        "time"
-    )  # by default first line of the file is going to be the reference time
+    # by default first line of the file is going to be the reference time
+    ref = list_of_time[0].get("time")
     for dict in list_of_time:
         dict["offset"] = calculate_offset(
             produce_timedelta(ref), produce_timedelta(dict.get("time"))
         )
-        dict["offset_type"] = offset_type(ref, dict.get("time"))
+        dict["offset_type"] = offset_type(
+            produce_timedelta(ref), produce_timedelta(dict.get("time"))
+        )
     print(list_of_time)
 
 
