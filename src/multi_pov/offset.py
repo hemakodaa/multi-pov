@@ -9,7 +9,7 @@ from enum import Enum, auto
 class OffsetType(Enum):
     PLUS = auto()
     MINUS = auto()
-    NONE = auto()
+    REFERENCE = auto()
 
 
 def open_csv(offset_file: str) -> list[dict]:
@@ -55,8 +55,8 @@ def produce_timedelta(timestamp: str) -> timedelta:
     return timedelta(seconds=safe_cast_to_int(split.pop().lstrip("0")))
 
 
-def calculate_offset(ref: timedelta, other: timedelta) -> timedelta:
-    return ref - other
+def calculate_offset(ref: timedelta, other: timedelta) -> float:
+    return ref.total_seconds() - other.total_seconds()
 
 
 def offset_type(ref: timedelta, other: timedelta) -> OffsetType:
@@ -69,22 +69,22 @@ def offset_type(ref: timedelta, other: timedelta) -> OffsetType:
     if ref < other:
         return OffsetType.PLUS
     else:
-        return OffsetType.NONE
+        return OffsetType.REFERENCE
 
 
-def offset(offset_file: str):
+def offset(offset_file: str, reference=None) -> list[dict]:
     list_of_time = [streamer for streamer in open_csv(offset_file)]
+    ref = ""
     # by default first line of the file is going to be the reference time
-    ref = list_of_time[0].get("time")
+    if not reference:
+        ref = list_of_time[0].get("time")
+    else:
+        for dict in list_of_time:
+            if dict["streamer"] == reference:
+                ref = dict.get("time")
     for dict in list_of_time:
         dict["offset"] = calculate_offset(
             produce_timedelta(ref), produce_timedelta(dict.get("time"))
         )
-        dict["offset_type"] = offset_type(
-            produce_timedelta(ref), produce_timedelta(dict.get("time"))
-        )
-    print(list_of_time)
 
-
-if __name__ == "__main__":
-    offset("offset.txt")
+    return list_of_time
