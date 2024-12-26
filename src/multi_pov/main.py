@@ -1,5 +1,6 @@
 from commands import generate_command
-from offset import offset
+from offset import offset, produce_timedelta
+from constants import DEFAULT_RESOLUTION
 import argparse
 
 parser = argparse.ArgumentParser(prog="multi-pov", description="Clipper's tool")
@@ -12,12 +13,27 @@ parser.add_argument("-r", "--reference", help="Set the reference streamer", type
 args = parser.parse_args()
 
 
+def adjusted_timestamps(t: str, offset: int):
+    t_delta = produce_timedelta(t).total_seconds()
+    delta = t_delta - offset
+    # account for offsets that would go out of range of the video
+    # negative timestamps tells yt-dlp to download from the end of the stream, instead of the start
+    return 0 if delta < 0 else delta
+
+
 def main():
     # add a while loop and an option to change reference streamer here
-    list_of_time = offset(args.offset_file, args.reference)
-    for dict in list_of_time:
+    start = input("Start: ")
+    end = input("End: ")
+    resolution = input("Resolution: ")
+    offset_dict = offset(args.offset_file, args.reference)
+    print(offset_dict)
+    for dict in offset_dict.get("list"):
         generate_command(
             dict["url"],
+            adjusted_timestamps(start, dict["offset"]),
+            adjusted_timestamps(end, dict["offset"]),
+            DEFAULT_RESOLUTION if not resolution else resolution,
         )
 
 

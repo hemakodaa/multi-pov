@@ -23,36 +23,45 @@ def safe_cast_to_int(string: str, default=None) -> int:
     try:
         return int(string)
     except (ValueError, TypeError) as e:
+        print(e)
         print(
-            e
-            + f"\n\nSummary: {string} is not an integer.\nMake sure timestamps only contains numbers and ':' separator in offset file."
+            f"\n\nSummary: {string} is not an integer.\nMake sure timestamps only contains numbers and ':' separator in offset file."
         )
         return default
+
+
+def strip_leading_zeros(s: str) -> str:
+    lstrip = s.lstrip("0")
+    return "0" if not lstrip else lstrip
 
 
 def produce_timedelta(timestamp: str) -> timedelta:
     # turn timestamp string into a timedelta object
     # for convenient operations.
     split = timestamp.split(":")
+    print(split)
     # timedelta cannot accept strings, it has to be integers
     # meaning "4:01" <-- "01" would error
     # thus lstrip("0")
+
+    # "00".lstrip("0") <-- returns None
+
     if len(split) == 3:
-        seconds = split.pop().lstrip("0")
-        minutes = split.pop().lstrip("0")
-        hours = split.pop().lstrip("0")
+        seconds = strip_leading_zeros(split.pop())
+        minutes = strip_leading_zeros(split.pop())
+        hours = strip_leading_zeros(split.pop())
         return timedelta(
             hours=safe_cast_to_int(hours),
             minutes=safe_cast_to_int(minutes),
             seconds=safe_cast_to_int(seconds),
         )
     if len(split) == 2:
-        seconds = split.pop().lstrip("0")
-        minutes = split.pop().lstrip("0")
+        seconds = strip_leading_zeros(split.pop())
+        minutes = strip_leading_zeros(split.pop())
         return timedelta(
             minutes=safe_cast_to_int(minutes), seconds=safe_cast_to_int(seconds)
         )
-    return timedelta(seconds=safe_cast_to_int(split.pop().lstrip("0")))
+    return timedelta(seconds=safe_cast_to_int(strip_leading_zeros(split.pop())))
 
 
 def calculate_offset(ref: timedelta, other: timedelta) -> float:
@@ -72,7 +81,7 @@ def offset_type(ref: timedelta, other: timedelta) -> OffsetType:
         return OffsetType.REFERENCE
 
 
-def offset(offset_file: str, reference=None) -> list[dict]:
+def offset(offset_file: str, reference=None) -> dict[str, list[dict] | str]:
     list_of_time = [streamer for streamer in open_csv(offset_file)]
     ref = ""
     # by default first line of the file is going to be the reference time
@@ -86,5 +95,5 @@ def offset(offset_file: str, reference=None) -> list[dict]:
         dict["offset"] = calculate_offset(
             produce_timedelta(ref), produce_timedelta(dict.get("time"))
         )
-
-    return list_of_time
+    # return ref as the original dict instead
+    return {"list": list_of_time, "ref": ref}
