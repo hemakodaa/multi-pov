@@ -1,5 +1,6 @@
 import subprocess
 from pathlib import Path
+from datetime import timedelta
 from constants import YT_DLP, DOWNLOAD_FOLDER, FILENAME
 
 
@@ -37,4 +38,4 @@ def download(url: str, start: str, end: str, resolution: int):
             url,
         ]
     )
-    return f"Downloaded: {url}"
+    return f"Downloaded: {url}, ranges: {timedelta(seconds=start)} - {timedelta(seconds=end)}"
