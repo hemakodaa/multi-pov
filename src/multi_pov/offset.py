@@ -14,7 +14,6 @@ class OffsetType(Enum):
 
 
 def open_csv(offset_file: str) -> list[dict]:
-
     try:
         with open(
             Path.cwd().joinpath(OFFSET_FOLDER).joinpath(offset_file), "r"
@@ -33,9 +32,7 @@ def open_csv(offset_file: str) -> list[dict]:
             return [dict for dict in file]
     except FileNotFoundError as e:
         print(e)
-        print(
-            f"\n\nFile {offset_file} does not exist. Include the file's extension.\n\n"
-        )
+        exit(f"\nFile '{offset_file}' does not exist. Include the file's extension.")
 
 
 def safe_cast_to_int(string: str, default=None) -> int:
@@ -43,10 +40,9 @@ def safe_cast_to_int(string: str, default=None) -> int:
         return int(string)
     except (ValueError, TypeError) as e:
         print(e)
-        print(
-            f"\n\nSummary: {string} is not an integer.\nMake sure timestamps only contain numbers and ':' separator in offset file.\n\n"
+        exit(
+            f"\nSummary: {string} is not an integer.\nMake sure timestamps only contain numbers and ':' separator in offset file."
         )
-        return default
 
 
 def strip_leading_zeros(s: str) -> str:
