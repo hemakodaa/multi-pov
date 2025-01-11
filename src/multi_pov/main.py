@@ -122,4 +122,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # if no arguments is given, print the help page.
+    if not args.offsetfile and not args.single:
+        exit(parser.print_help())
     main()
