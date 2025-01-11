@@ -69,7 +69,7 @@ def main():
         # single download means there's not really a 'reference'
         reference_streamer = {
             "url": args.single,
-            "streamer": "single_download",
+            "streamer": "single_download" if not args.reference else args.reference,
         }  # need better name
         offset_dict = {"list": [reference_streamer], "ref": reference_streamer}
 
