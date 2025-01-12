@@ -1,6 +1,3 @@
-# Don't use this utility for:
-1. ...downloading full VODs (for now). Technically you can do it **HOWEVER**, it will take so much longer as it uses `ffmpeg` for *any* download.
-2. ...downloading streams while they're live. It's made for VODs.
 # Requirements
 1. Python 3.13+. Simply download the latest version from python.org
 2. `yt-dlp`
@@ -61,41 +58,67 @@ In this example, Erina is the **Reference** streamer. You are watching the colla
 **IMPORTANT: Change directory (`cd`) to multi_pov/cloned repository.**
 
 If you have `pdm` installed, the base command is `pdm run main`. If you don't, the base command will be `python .\src\multi_pov\main.py`
+## Bulk Downloads
+Bulk downloads uses the offset file. 
+- Start multi POV section downloads: 
 
-- Start downloads: 
-
-`pdm run main offset_file.txt` <- offset file is **mandatory**
+`pdm run main -o offset_file.txt`
 - Maximum resolution of 720p: 
 
-`pdm run main offset_file.txt -p 720`
+`pdm run main -o offset_file.txt -p 720`
 - Maximum of 2 parallel downloads: 
 
-`pdm run main offset_file.txt -t 2`
+`pdm run main -o offset_file.txt -t 2`
 - Change reference streamer to (name) :
 
-`pdm run main offset_file.txt -r (name)`
+`pdm run main -o offset_file.txt -r (name)`
+- Download full vods concurrently
+
+`pdm run main -o offset_file.txt --full`
 - All the above at once: 
 
-`pdm run main offset_file.txt -p 720 -t 2 -r (name)` <- the order doesn't matter for the options.
+`pdm run main -o offset_file.txt -p 720 -t 2 -r (name) --full` <- the order doesn't matter for the options.
+
+## Single downloads
+- Download a section of a video
+
+`pdm run main -s https://www.youtube.com/watch?v=w8DLUoEbtLk`
+
+- Max resolution of 720p
+
+`pdm run main -s https://www.youtube.com/watch?v=w8DLUoEbtLk -p 720`
+
+- Download an entire video
+
+`pdm run main -s https://www.youtube.com/watch?v=w8DLUoEbtLk --full`
+
+- All the above at once
+
+`pdm run main -s https://www.youtube.com/watch?v=w8DLUoEbtLk -p 720 --full`
+
 
 # Options
 ```
-> pdm run main -h
-usage: multi-pov [-h] [-r REFERENCE] [-t THREADS] [-p RESOLUTION] offset_file
+> pdm run main
+usage: multi-pov [-h] [-o OFFSETFILE] [-r REFERENCE] [-t THREADS]
+                 [-p RESOLUTION] [-s SINGLE] [--full]
 
 Download multiple POVs at once
 
-positional arguments:
-  offset_file           Filename of the offset file (include extension e.g. .txt)
-
 options:
   -h, --help            show this help message and exit
+  -o, --offsetfile OFFSETFILE
+                        Filename of the offset file (include extension e.g.
+                        .txt)
   -r, --reference REFERENCE
                         Set the reference streamer
   -t, --threads THREADS
                         Set the amount of parallel downloads (default=4)
   -p, --resolution RESOLUTION
                         Set the maximum resolution (default=1080)
+  -s, --single SINGLE   Download single videos
+  --full                Download full VODs.
+
 ```
 ## Reference
 You can change who the reference is based on from which POV you're watching from. It will default to whoever is on the first line of the offset file.
@@ -104,8 +127,8 @@ The maximum number of parallel downloads at any given time. `-t 1` is a sequenti
 ## Resolution
 Sets the **maximum** resolution, meaning it will download the specified resolution **or lower**. Defaults to 1080p.
 
-# Interface
-
+# Section Download Interface
+Section downloads for both single and bulk downloads are the same. Single downloads will have `single_download` as its default or you can change it via `-r` flag.
 ```
 > pdm run main offset.txt
 
