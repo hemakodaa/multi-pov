@@ -13,14 +13,18 @@ parser.add_argument(
     "--offsetfile",
     help="Filename of the offset file (include extension e.g. .txt)",
     type=str,
+    metavar="FILENAME",
 )
-parser.add_argument("-r", "--reference", help="Set the reference streamer", type=str)
+parser.add_argument(
+    "-r", "--reference", help="Set the reference streamer", type=str, metavar="NAME"
+)
 parser.add_argument(
     "-t",
     "--threads",
     help="Set the amount of parallel downloads (default=4)",
     type=int,
     default=4,
+    metavar="AMOUNT",
 )
 parser.add_argument(
     "-p",
@@ -29,7 +33,9 @@ parser.add_argument(
     type=int,
     default=1080,
 )
-parser.add_argument("-s", "--single", help="Download single videos", type=str)
+parser.add_argument(
+    "-s", "--single", help="Download single videos", type=str, metavar="URL"
+)
 parser.add_argument("--full", help="Download full VODs.", action="store_true")
 args = parser.parse_args()
 
