@@ -1,5 +1,10 @@
 from commands import section_download, full_download
-from downloads import DownloadKind, BulkDownload, single_download, bulk_download
+from downloads import (
+    DownloadKind,
+    BulkDownload,
+    single_download,
+    bulk_download,
+)
 from offset import offset
 from typing import Callable
 from datetime import timedelta as td
@@ -44,7 +49,8 @@ parser.add_argument(
     "--notable",
     help="Show notable timestamp from a VOD based on chat activity",
     type=int,
-    metavar="PERCENTILE"
+    choices=range(1,101),
+    metavar="PERCENTILE",
 )
 args = parser.parse_args()
 
@@ -79,20 +85,19 @@ def sanitize_timestamp_input(input_timestamp: str) -> bool:
     return False
 
 
-def notable():
-    timestamp = notable_moments(args.single, 90, False)
-    for t, _ in timestamp:
-        print(f"[{td(minutes=t)}] {args.single}&t={t}m")
+def notable() -> str:
+    timestamp = notable_moments(args.single, args.notable, False)
+    print("\n".join([f"[{td(minutes=t)}] {args.single}&t={t}m" for t, _ in timestamp]))
+    return f"Showing top {100 - args.notable}% of chat activity"
 
 
 def main():
     # show candidate clips and exit
     if args.notable:
-        notable()
-        exit()
-        
+        exit(notable())
+
+    # single download means there's not really a 'reference'
     if args.single:
-        # single download means there's not really a 'reference'
         reference_streamer = {
             "url": args.single,
             "streamer": "single_download" if not args.reference else args.reference,
@@ -102,6 +107,7 @@ def main():
     else:
         offset_dict: dict[str, str] = offset(args.offsetfile, args.reference)
         reference_streamer = offset_dict.get("ref")
+
     # a full vod download
     if args.full:
         result = start_download(

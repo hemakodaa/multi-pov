@@ -2,9 +2,9 @@
 name = "multi_pov"
 version = "0.2.0"
 description = "Default template for PDM package"
-authors = [{ name = "dha", email = "TBD" }]
+authors = [{ name = "hemakodaa", email = "hemakodaa@gmail.com" }]
 dependencies = [
-    "notable-moments==0.1.1",
+    "notable-moments>=0.1.1",
 ]
 requires-python = ">=3.13"
 readme = "README.md"
