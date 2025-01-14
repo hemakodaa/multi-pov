@@ -2,8 +2,10 @@ from commands import section_download, full_download
 from downloads import DownloadKind, BulkDownload, single_download, bulk_download
 from offset import offset
 from typing import Callable
+from datetime import timedelta as td
 import argparse
 import re
+from notable_moments import notable_moments
 
 parser = argparse.ArgumentParser(
     prog="multi-pov", description="Download multiple POVs at once"
@@ -37,6 +39,13 @@ parser.add_argument(
     "-s", "--single", help="Download single videos", type=str, metavar="URL"
 )
 parser.add_argument("--full", help="Download full VODs.", action="store_true")
+parser.add_argument(
+    "-n",
+    "--notable",
+    help="Show notable timestamp from a VOD based on chat activity",
+    type=int,
+    metavar="PERCENTILE"
+)
 args = parser.parse_args()
 
 
@@ -70,7 +79,18 @@ def sanitize_timestamp_input(input_timestamp: str) -> bool:
     return False
 
 
+def notable():
+    timestamp = notable_moments(args.single, 90, False)
+    for t, _ in timestamp:
+        print(f"[{td(minutes=t)}] {args.single}&t={t}m")
+
+
 def main():
+    # show candidate clips and exit
+    if args.notable:
+        notable()
+        exit()
+        
     if args.single:
         # single download means there's not really a 'reference'
         reference_streamer = {
