@@ -10,7 +10,7 @@ from typing import Callable
 from datetime import timedelta as td
 import argparse
 import re
-from notable_moments import notable_moments
+from notable_moments import notable_activity, notable_keyword
 
 parser = argparse.ArgumentParser(
     prog="multi-pov", description="Download multiple POVs at once"
@@ -49,8 +49,14 @@ parser.add_argument(
     "--notable",
     help="Show notable timestamp from a VOD based on chat activity",
     type=int,
-    choices=range(1,101),
+    choices=range(1, 101),
     metavar="PERCENTILE",
+)
+parser.add_argument(
+    "--keyword",
+    help="Show notable timestamps based on keywords appearing in live chat. Use ',' delimiter for multiple keywords",
+    type=str,
+    metavar="REGEX",
 )
 args = parser.parse_args()
 
@@ -86,23 +92,38 @@ def sanitize_timestamp_input(input_timestamp: str) -> bool:
 
 
 def notable() -> str:
-    timestamp = notable_moments(args.single, args.notable, False)
+    timestamp = notable_activity(args.single, args.notable, False)
     print("\n".join([f"[{td(minutes=t)}] {args.single}&t={t}m" for t, _ in timestamp]))
     return f"Showing top {100 - args.notable}% of chat activity"
 
 
-def main():
-    # show candidate clips and exit
-    if args.notable:
-        exit(notable())
+def keyword() -> str:
+    replace_with_pipes = args.keyword.replace(",", "|")
+    timestamp = notable_keyword(args.single, replace_with_pipes)
+    print(f"Showing activity for keyword: {replace_with_pipes}")
+    print(
+        "\n".join(
+            [
+                f"[{td(minutes=t)}][occurences: {f}] {args.single}&t={int(t)}m"
+                for t, f in timestamp
+            ]
+        )
+    )
 
+
+def main():
     # single download means there's not really a 'reference'
     if args.single:
+        # show candidate clips and exit
+        if args.notable:
+            exit(notable())
         reference_streamer = {
             "url": args.single,
             "streamer": "single_download" if not args.reference else args.reference,
         }  # need better name
         offset_dict = {"list": [reference_streamer], "ref": reference_streamer}
+        if args.keyword:
+            exit(keyword())
 
     else:
         offset_dict: dict[str, str] = offset(args.offsetfile, args.reference)
