@@ -25,7 +25,7 @@ def section_download(
     download_sections = f"*{start}-{end}"
     format_selection_switch = "-f"
     # [format_note!*=Premium] <= exclude premium bitrates
-    format_selection = f"bestvideo[height<={resolution}][format_note!*=Premium][ext=mp4]+bestaudio[ext=m4a]"
+    format_selection = f"bestvideo[height<={resolution}][format_note!*=Premium][ext=mp4]+bestaudio[ext=m4a]/b"
     output_selection_switch = "-o"
     output_selection = (
         f"{Path().cwd().joinpath(DOWNLOAD_FOLDER).joinpath(FILENAME_SECTION)}"
