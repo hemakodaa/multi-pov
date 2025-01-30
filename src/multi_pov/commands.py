@@ -30,6 +30,7 @@ def section_download(
     output_selection = (
         f"{Path().cwd().joinpath(DOWNLOAD_FOLDER).joinpath(FILENAME_SECTION)}"
     )
+    restrict_filename = "--restrict-filename"
     subprocess.run(
         [
             YT_DLP,
@@ -40,6 +41,7 @@ def section_download(
             output_selection_switch,
             output_selection,
             url,
+            restrict_filename
         ]
     )
     return f"Downloaded: {url}, ranges: {timedelta(seconds=start)} - {timedelta(seconds=end)}"
@@ -53,6 +55,7 @@ def full_download(url: str, resolution: int) -> str:
     output_selection = (
         f"{Path().cwd().joinpath(DOWNLOAD_FOLDER).joinpath(FILENAME_FULL)}"
     )
+    restrict_filename = "--restrict-filename"
     subprocess.run(
         [
             YT_DLP,
@@ -61,6 +64,7 @@ def full_download(url: str, resolution: int) -> str:
             output_selection_switch,
             output_selection,
             url,
+            restrict_filename
         ]
     )
     return f"Downloaded: {url}"
