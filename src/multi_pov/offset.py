@@ -1,5 +1,4 @@
 # read from offset file and determine the offset across different livers
-from constants import OFFSET_FOLDER
 import csv
 from exceptions import FileEmptyError
 from datetime import timedelta
@@ -14,20 +13,11 @@ class OffsetType(Enum):
 
 
 def open_csv(offset_file: str) -> list[dict]:
+    path_to_file = Path.cwd().joinpath(offset_file)
     try:
-        with open(
-            Path.cwd().joinpath(OFFSET_FOLDER).joinpath(offset_file), "r"
-        ) as file:
+        with open(path_to_file, "r") as file:
             file = csv.DictReader(file, fieldnames=["streamer", "time", "url"])
-            if (
-                Path()
-                .cwd()
-                .joinpath(OFFSET_FOLDER)
-                .joinpath(offset_file)
-                .stat()
-                .st_size
-                == 0
-            ):
+            if path_to_file.stat().st_size == 0:
                 raise FileEmptyError("File is empty")
             return [dict for dict in file]
     except FileNotFoundError as e:
