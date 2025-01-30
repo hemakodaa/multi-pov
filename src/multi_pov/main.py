@@ -81,12 +81,14 @@ def start_download(
 
 
 def sanitize_timestamp_input(input_timestamp: str) -> bool:
-    s = re.match(r"^\d{1,2}$", input_timestamp)
+    s = re.match(r"^\d{1,5}$", input_timestamp)
     ms = re.match(r"^\d{1,2}:\d{1,2}$", input_timestamp)
     hms = re.match(r"^\d{1,2}:\d{1,2}:\d{1,2}$", input_timestamp)
     if any([s, ms, hms]):
         return True
-    print("Warning: wrong timestamp format. Accepted format: ss, mm:ss, hh:mm:ss")
+    print(
+        "Warning: wrong timestamp format. Accepted format: 0-86400 seconds, mm:ss, hh:mm:ss"
+    )
     input("Press any key to continue...")
     return False
 
@@ -114,16 +116,15 @@ def keyword() -> str:
 def main():
     # single download means there's not really a 'reference'
     if args.single:
-        # show candidate clips and exit
         if args.notable:
             exit(notable())
+        if args.keyword:
+            exit(keyword())
         reference_streamer = {
             "url": args.single,
             "streamer": "single_download" if not args.reference else args.reference,
         }  # need better name
         offset_dict = {"list": [reference_streamer], "ref": reference_streamer}
-        if args.keyword:
-            exit(keyword())
 
     else:
         offset_dict: dict[str, str] = offset(args.offsetfile, args.reference)
