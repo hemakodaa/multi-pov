@@ -5,6 +5,7 @@ from downloads import (
     single_download,
     bulk_download,
 )
+from transcript import transcript
 from offset import offset
 from typing import Callable
 from datetime import timedelta as td
@@ -57,6 +58,11 @@ parser.add_argument(
     help="Show notable timestamps based on keywords appearing in live chat. Use ',' delimiter for multiple keywords",
     type=str,
     metavar="REGEX",
+)
+parser.add_argument(
+    "--transcript",
+    help="Get an audio transcription of YouTube video",
+    action="store_true",
 )
 args = parser.parse_args()
 
@@ -125,6 +131,9 @@ def main():
             "streamer": "single_download" if not args.reference else args.reference,
         }  # need better name
         offset_dict = {"list": [reference_streamer], "ref": reference_streamer}
+        if args.transcript:
+            transcript(args.single)
+            exit()
 
     else:
         offset_dict: dict[str, str] = offset(args.offsetfile, args.reference)

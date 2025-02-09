@@ -1,0 +1,69 @@
+from youtube_transcript_api import YouTubeTranscriptApi as yt_transcript
+from urllib.parse import urlparse
+import re
+import requests
+from bs4 import BeautifulSoup
+import pathlib
+from pathlib import Path
+
+
+def get_video_id(url: str) -> str | None:
+    parse_url = urlparse(url)
+    m = None
+    if "watch" in parse_url.path:
+        q = parse_url.query
+        if "&" in q:
+            m = re.search(r"v=([\w-]+)&", q, re.IGNORECASE)
+        else:
+            m = re.search(r"v=([\w-]+)", q, re.IGNORECASE)
+    if "live" in parse_url.path:
+        p = parse_url.path
+        m = re.search(r"live\/([\w-]+)", p, re.IGNORECASE)
+    return m if not m else m.group(1)
+
+
+def transcript(url: str):
+    video_id = get_video_id(url)
+    video_title = "_".join(
+        re.findall(r"\w+", BeautifulSoup(requests.get(url).text, "lxml").title.text)
+    )
+    folder_name = "transcript"
+    folder_path = Path.cwd().joinpath(folder_name)
+    md_file = f"{folder_path.joinpath(video_title)}.md"
+
+    if Path(md_file).is_file():
+        exit("File already exists!")
+
+    try:
+        Path.mkdir(folder_path)
+    except pathlib.UnsupportedOperation as e:
+        exit(e)
+    except FileNotFoundError as e:
+        print(f"Missing parent in path: {folder_path}")
+        exit(e)
+    except FileExistsError:
+        pass
+
+    print("Now downloading audio transcription...")
+    t = yt_transcript.get_transcript(video_id)
+    collection = []
+    for dictionary in t:
+        text = dictionary.get("text")
+        timestamp = dictionary.get("start")  # in seconds
+        collection.append(
+            f"[{text}](https://www.youtube.com/watch?v={video_id}&t={timestamp}s)"
+        )
+    with open(f"{md_file}", "w+") as file:
+        file.write(" ".join(collection))
+    print(f"Saved: {md_file}")
+
+
+if __name__ == "__main__":
+    url_list = [
+        "https://www.youtube.com/watch?v=w-N6eibzFrA",
+        "https://www.youtube.com/watch?v=pv5_A-OAQao&t=2580s",
+        "https://www.youtube.com/live/pv5_A-OAQao?si=f5ySSxSyOgUHdLLp",
+        "https://www.youtube.com/live/pv5_A-OAQao?si=f5ySSxSyOgUHdLLp&t=2593",
+    ]
+    url = url_list[1]
+    transcript(url)
