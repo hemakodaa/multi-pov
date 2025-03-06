@@ -9,6 +9,7 @@ from transcript import transcript
 from offset import offset
 from typing import Callable
 from datetime import timedelta as td
+from urllib.parse import urlparse
 import argparse
 import re
 from notable_moments import notable_activity, notable_keyword
@@ -99,9 +100,43 @@ def sanitize_timestamp_input(input_timestamp: str) -> bool:
     return False
 
 
+def site_timestamp(url: str):
+    parser = urlparse(url)
+    compile = re.compile(r"\.(\w+)\.", re.IGNORECASE)
+    yt = "youtube"
+    twitch = "twitch"
+    keyword = [yt, twitch]
+    current_keyword = f"Current searched keyword: {",".join(keyword)}"
+
+    search = compile.search(parser.netloc)
+
+    if not search:
+        exit(f"No word match found. {current_keyword}")
+
+    needle = search.group(1)
+
+    if needle not in keyword:
+        exit(
+            f"regex pattern matched, however word is not found in keyword. {current_keyword}"
+        )
+
+    return needle
+
+
 def notable() -> str:
     timestamp = notable_activity(args.single, args.notable, False)
-    print("\n".join([f"[{td(minutes=t)}] {args.single}&t={t}m" for t, _ in timestamp]))
+    site = site_timestamp(args.single)
+    if site == "youtube":
+        separator = "&"
+    elif site == "twitch":
+        separator = "?"
+    else:
+        raise ValueError("BUG: new site netloc hasn't been checked")
+    print(
+        "\n".join(
+            [f"[{td(minutes=t)}] {args.single}{separator}t={t}m" for t, _ in timestamp]
+        )
+    )
     return f"Showing top {100 - args.notable}% of chat activity"
 
 
