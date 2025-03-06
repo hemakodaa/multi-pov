@@ -100,7 +100,7 @@ def sanitize_timestamp_input(input_timestamp: str) -> bool:
     return False
 
 
-def site_timestamp(url: str):
+def which_site(url: str):
     parser = urlparse(url)
     compile = re.compile(r"\.(\w+)\.", re.IGNORECASE)
     yt = "youtube"
@@ -125,7 +125,7 @@ def site_timestamp(url: str):
 
 def notable() -> str:
     timestamp = notable_activity(args.single, args.notable, False)
-    site = site_timestamp(args.single)
+    site = which_site(args.single)
     if site == "youtube":
         separator = "&"
     elif site == "twitch":
@@ -140,18 +140,27 @@ def notable() -> str:
     return f"Showing top {100 - args.notable}% of chat activity"
 
 
-def keyword() -> str:
+def keyword():
     replace_with_pipes = args.keyword.replace(",", "|")
     timestamp = notable_keyword(args.single, replace_with_pipes)
     print(f"Showing activity for keyword: {replace_with_pipes}")
+    # refactor this out, its used in notable() too
+    site = which_site(args.single)
+    if site == "youtube":
+        separator = "&"
+    elif site == "twitch":
+        separator = "?"
+    else:
+        raise ValueError("BUG: new site netloc hasn't been checked")
     print(
         "\n".join(
             [
-                f"[{td(minutes=t)}][occurences: {f}] {args.single}&t={int(t)}m"
+                f"[{td(minutes=t)}][occurences: {f}] {args.single}{separator}t={int(t)}m"
                 for t, f in timestamp
             ]
         )
     )
+    return f"Showing results for keyword: {replace_with_pipes}"
 
 
 def main():
