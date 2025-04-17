@@ -102,30 +102,35 @@ def sanitize_timestamp_input(input_timestamp: str) -> bool:
 
 def which_site(url: str):
     parser = urlparse(url)
-    compile = re.compile(r"\.(\w+)\.", re.IGNORECASE)
     yt = "youtube"
     twitch = "twitch"
     keyword = [yt, twitch]
-    current_keyword = f"Current searched keyword: {",".join(keyword)}"
+    current_keyword = f"Current searched SLD: {",".join(keyword)}"
+
+    if "www" in parser.netloc:
+        compile = re.compile(r"\.(\w+)\.", re.IGNORECASE)
+    else:
+        compile = re.compile(r"\.{,1}(\w+)\.", re.IGNORECASE)
 
     search = compile.search(parser.netloc)
-
+    print("SLD (netloc):" + parser.netloc)
+    print(f"Matched SLD: {search}")
     if not search:
-        exit(f"No word match found. {current_keyword}")
+        exit(f"No SLD match found. {current_keyword}")
 
     needle = search.group(1)
 
     if needle not in keyword:
         exit(
-            f"regex pattern matched, however word is not found in keyword. {current_keyword}"
+            f"regex pattern matched, however SLD is not found in keyword. {current_keyword}"
         )
 
     return needle
 
 
 def notable() -> str:
-    timestamp = notable_activity(args.single, args.notable, False)
     site = which_site(args.single)
+    timestamp = notable_activity(args.single, args.notable, False)
     if site == "youtube":
         separator = "&"
     elif site == "twitch":

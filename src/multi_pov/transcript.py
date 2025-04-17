@@ -53,9 +53,10 @@ def transcript(url: str):
         collection.append(
             f"[{text}](https://www.youtube.com/watch?v={video_id}&t={timestamp}s)"
         )
-    with open(f"{md_file}", "w+") as file:
-        file.write(" ".join(collection))
-    print(f"Saved: {md_file}")
+    print(" ".join(collection))
+    # with open(f"{md_file}", "w+") as file:
+    #     file.write(" ".join(collection))
+    # print(f"Saved: {md_file}")
 
 
 if __name__ == "__main__":

@@ -41,7 +41,7 @@ def section_download(
             output_selection_switch,
             output_selection,
             url,
-            restrict_filename
+            restrict_filename,
         ]
     )
     return f"Downloaded: {url}, ranges: {timedelta(seconds=start)} - {timedelta(seconds=end)}"
@@ -64,7 +64,7 @@ def full_download(url: str, resolution: int) -> str:
             output_selection_switch,
             output_selection,
             url,
-            restrict_filename
+            restrict_filename,
         ]
     )
     return f"Downloaded: {url}"
