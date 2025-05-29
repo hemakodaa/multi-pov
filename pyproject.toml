@@ -3,11 +3,8 @@ name = "multi_pov"
 version = "0.2.0"
 description = "Default template for PDM package"
 authors = [{ name = "hemakodaa", email = "hemakodaa@gmail.com" }]
-dependencies = [
-    "notable-moments==0.2.0",
-    "youtube-transcript-api>=0.6.2",
-]
-requires-python = ">=3.13"
+dependencies = ["notable-moments @ file:///${PROJECT_ROOT}/../notable_moments/dist/notable_moments-0.2.2-py3-none-any.whl", "youtube-transcript-api>=1.0.3"]
+requires-python = ">=3.13, <3.14"
 readme = "README.md"
 license = { text = "MIT" }
 
