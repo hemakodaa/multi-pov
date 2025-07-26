@@ -8,7 +8,8 @@ url_dump_dir = "video_url_dumps"
 def main_keyword():
     # ====================
     # PUT KEYWORD HERE
-    kw = "phishfin"
+    kw = "lol,lmao,phishwheeze"
+    # kw = "buh"
     # ===================
 
     lines = []
@@ -46,17 +47,20 @@ def main_keyword():
 
 
 def main_transcript():
+    # =====CHANGE FOLDER NAME HERE=======
+    FOLDER = "phish"
+    # change to empty string to ignore the constant
+    # ===================================
+
     lines = []
     c = re.compile(r"v=(.+)", re.IGNORECASE)
     with open(Path(url_dump_dir).joinpath("phish-videos.txt"), "r+") as f:
         lines = [i for i in f.readlines()]
     if not lines:
-        exit("lines is empty")
+        exit("variable 'lines' is empty")
     for line in lines:
         id = c.search(line)
-        current_filepath = (
-            f"{Path(url_dump_dir).joinpath('transcripts').joinpath(id.group(1))}.md"
-        )
+        current_filepath = f"{Path(url_dump_dir).joinpath('transcripts').joinpath(FOLDER).joinpath(id.group(1))}.md"
         if Path(current_filepath).exists():
             print(f"{current_filepath} already exists\nSkipping...\n")
             continue
@@ -72,12 +76,12 @@ def main_transcript():
             capture_output=True,
         )
         with open(
-            f"{Path(url_dump_dir).joinpath('transcripts').joinpath(id.group(1))}.md",
+            f"{Path(url_dump_dir).joinpath('transcripts').joinpath(FOLDER).joinpath(id.group(1))}.md",
             "w+",
         ) as f:
             f.write(output.stdout.decode(errors="ignore"))
         print(line + " finished.")
 
 
-# main_transcript()
-main_keyword()
+main_transcript()
+# main_keyword()

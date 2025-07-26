@@ -3,6 +3,11 @@
 *.mkv
 *.webm
 *.txt
+transcript/
+video_url_dumps/
+notables/
+dl/
+.vs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

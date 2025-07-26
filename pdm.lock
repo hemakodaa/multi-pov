@@ -299,7 +299,7 @@ files = [
 
 [[package]]
 name = "youtube-transcript-api"
-version = "1.0.3"
+version = "1.2.0"
 requires_python = "<3.14,>=3.8"
 summary = "This is an python API which allows you to get the transcripts/subtitles for a given YouTube video. It also works for automatically generated subtitles, supports translating subtitles and it does not require a headless browser, like other selenium based solutions do!"
 groups = ["default"]
@@ -308,6 +308,6 @@ dependencies = [
     "requests",
 ]
 files = [
-    {file = "youtube_transcript_api-1.0.3-py3-none-any.whl", hash = "sha256:d1874e57de65cf14c9d7d09b2b37c814d6287fa0e770d4922c4cd32a5b3f6c47"},
-    {file = "youtube_transcript_api-1.0.3.tar.gz", hash = "sha256:902baf90e7840a42e1e148335e09fe5575dbff64c81414957aea7038e8a4db46"},
+    {file = "youtube_transcript_api-1.2.0-py3-none-any.whl", hash = "sha256:1829455a669645e35e4a970192db37987fb8ca6ddf05aa6051bad00230b77041"},
+    {file = "youtube_transcript_api-1.2.0.tar.gz", hash = "sha256:ad01802f55a56eb33cc06d6b415a6055dd1bc8147bee053848411d9b4700ca2c"},
 ]
