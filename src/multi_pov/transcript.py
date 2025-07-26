@@ -45,9 +45,9 @@ def transcript(url: str):
         pass
 
     print("Now downloading audio transcription...")
-    t = yt_transcript.get_transcript(video_id)
+    t = yt_transcript().fetch(video_id=video_id)
     collection = []
-    for dictionary in t:
+    for dictionary in t.to_raw_data():
         text = dictionary.get("text")
         timestamp = dictionary.get("start")  # in seconds
         collection.append(
