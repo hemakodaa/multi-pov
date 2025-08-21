@@ -3,7 +3,8 @@ import subprocess
 import re
 
 url_dump_dir = "video_url_dumps"
-
+streamer = "phish" 
+txtfile = streamer + "-videos.txt"
 
 def main_keyword():
     # ====================
@@ -14,7 +15,7 @@ def main_keyword():
 
     lines = []
     c = re.compile(r"v=(.+)", re.IGNORECASE)
-    with open(Path(url_dump_dir).joinpath("phish-videos.txt"), "r+") as f:
+    with open(Path(url_dump_dir).joinpath(txtfile), "r+") as f:
         lines = [i for i in f.readlines()]
     if not lines:
         exit("lines is empty")
@@ -48,13 +49,14 @@ def main_keyword():
 
 def main_transcript():
     # =====CHANGE FOLDER NAME HERE=======
-    FOLDER = "phish"
+    # FOLDER = "phish"
+    FOLDER = streamer
     # change to empty string to ignore the constant
     # ===================================
 
     lines = []
     c = re.compile(r"v=(.+)", re.IGNORECASE)
-    with open(Path(url_dump_dir).joinpath("phish-videos.txt"), "r+") as f:
+    with open(Path(url_dump_dir).joinpath(txtfile), "r+") as f:
         lines = [i for i in f.readlines()]
     if not lines:
         exit("variable 'lines' is empty")
