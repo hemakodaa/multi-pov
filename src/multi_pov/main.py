@@ -9,7 +9,7 @@ from transcript import transcript
 from offset import offset
 from typing import Callable
 from datetime import timedelta as td
-from urllib.parse import urlparse
+from helper import which_site
 import argparse
 import re
 from notable_moments import notable_activity, notable_keyword
@@ -98,35 +98,6 @@ def sanitize_timestamp_input(input_timestamp: str) -> bool:
     )
     input("Press any key to continue...")
     return False
-
-
-def which_site(url: str):
-    parser = urlparse(url)
-    yt = "youtube"
-    twitch = "twitch"
-    keyword = [yt, twitch]
-    current_keyword = f"Current searched SLD: {",".join(keyword)}"
-
-    if "www" in parser.netloc:
-        compile = re.compile(r"\.(\w+)\.", re.IGNORECASE)
-    else:
-        compile = re.compile(r"\.{,1}(\w+)\.", re.IGNORECASE)
-
-    search = compile.search(parser.netloc)
-    print("SLD (netloc):" + parser.netloc)
-    print(f"Matched SLD: {search}")
-    if not search:
-        exit(f"No SLD match found. {current_keyword}")
-
-    needle = search.group(1)
-
-    if needle not in keyword:
-        exit(
-            f"regex pattern matched, however SLD is not found in keyword. {current_keyword}"
-        )
-
-    return needle
-
 
 def notable() -> str:
     site = which_site(args.single)

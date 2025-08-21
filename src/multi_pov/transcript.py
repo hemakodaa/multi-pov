@@ -53,6 +53,7 @@ def transcript(url: str):
         collection.append(
             f"[{text}](https://www.youtube.com/watch?v={video_id}&t={timestamp}s)"
         )
+    # keep this, do the splicing with md2line
     print(" ".join(collection))
     # with open(f"{md_file}", "w+") as file:
     #     file.write(" ".join(collection))

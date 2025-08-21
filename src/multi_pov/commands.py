@@ -1,4 +1,5 @@
 import subprocess
+from helper import which_site
 from pathlib import Path
 from datetime import timedelta
 from constants import YT_DLP, DOWNLOAD_FOLDER, FILENAME_SECTION, FILENAME_FULL
@@ -16,6 +17,22 @@ def timestamp_in_range(start: int, end: int) -> bool:
     return True
 
 
+def fmt_selection(resolution: int, url: str) -> str:
+    if which_site(url) == "youtube":
+        return (
+            f"bv[height<={resolution}][format_note!*=Premium][ext=mp4]+ba[ext=m4a]"
+            f"/bv[height<={resolution}][format_note!*=Premium]+ba"
+            f"/bv*[height<={resolution}][format_note!*=Premium]+ba"
+            f"/bv*[height<={resolution}][format_note!*=Premium]+ba*"
+        )
+    return (
+        f"bv[height<={resolution}][ext=mp4]+ba[ext=m4a]"
+        f"/bv[height<={resolution}]+ba"
+        f"/bv*[height<={resolution}]+ba"
+        f"/bv*[height<={resolution}]+ba*"
+    )
+
+
 def section_download(
     url: str, start: float | int, end: float | int, resolution: int
 ) -> str:
@@ -25,7 +42,7 @@ def section_download(
     download_sections = f"*{start}-{end}"
     format_selection_switch = "-f"
     # [format_note!*=Premium] <= exclude premium bitrates
-    format_selection = f"bestvideo[height<={resolution}][format_note!*=Premium][ext=mp4]+bestaudio[ext=m4a]/b"
+    format_selection = fmt_selection(resolution, url)
     output_selection_switch = "-o"
     output_selection = (
         f"{Path().cwd().joinpath(DOWNLOAD_FOLDER).joinpath(FILENAME_SECTION)}"
@@ -50,7 +67,7 @@ def section_download(
 def full_download(url: str, resolution: int) -> str:
     format_selection_switch = "-f"
     # [format_note!*=Premium] <= exclude premium bitrates
-    format_selection = f"bestvideo[height<={resolution}][format_note!*=Premium][ext=mp4]+bestaudio[ext=m4a]"
+    format_selection = fmt_selection(resolution, url)
     output_selection_switch = "-o"
     output_selection = (
         f"{Path().cwd().joinpath(DOWNLOAD_FOLDER).joinpath(FILENAME_FULL)}"
