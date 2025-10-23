@@ -24,6 +24,7 @@ def main_keyword():
         if Path(
             f"{Path(url_dump_dir).joinpath(kw).joinpath(id.group(1))}.txt"
         ).exists():
+            print(f"{id.group(1)} exists, Skipping...")
             continue
         output = subprocess.run(
             [
