@@ -53,8 +53,9 @@ def transcript(url: str):
         collection.append(
             f"[{text}](https://www.youtube.com/watch?v={video_id}&t={timestamp}s)"
         )
-    # keep this, do the splicing with md2line
-    print(" ".join(collection))
+    # dha: "keep this, do the splicing with md2line"
+    # hi this is dha from the future, turns out it was dumb
+    print("\n".join(collection))
     # with open(f"{md_file}", "w+") as file:
     #     file.write(" ".join(collection))
     # print(f"Saved: {md_file}")
