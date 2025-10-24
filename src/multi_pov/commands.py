@@ -20,9 +20,9 @@ def timestamp_in_range(start: int, end: int) -> bool:
 def fmt_selection(resolution: int, url: str) -> str:
     if which_site(url) == "youtube":
         return (
-            # f"bv[height<={resolution}][format_note!*=Premium]+ba"
-            # f"/bv[height<={resolution}][format_note!*=Premium]+ba"
-            # f"/bv*[height<={resolution}][format_note!*=Premium]+ba"
+            f"bv[height<={resolution}][format_note!*=Premium]+ba"
+            f"/bv[height<={resolution}][format_note!*=Premium]+ba"
+            f"/bv*[height<={resolution}][format_note!*=Premium]+ba"
             f"bv*[height<={resolution}][format_note!*=Premium]+ba*"
         )
     return (
@@ -59,8 +59,8 @@ def section_download(
             output_selection,
             url,
             restrict_filename,
-            "--extractor-args",
-            "youtube:player_js_version=actual",
+            # "--extractor-args",
+            # "youtube:player_js_version=actual",
         ]
     )
     return f"Downloaded: {url}, ranges: {timedelta(seconds=start)} - {timedelta(seconds=end)}"
@@ -84,8 +84,8 @@ def full_download(url: str, resolution: int) -> str:
             output_selection,
             url,
             restrict_filename,
-            "--extractor-args",
-            "youtube:player_js_version=actual",
+            # "--extractor-args",
+            # "youtube:player_js_version=actual",
         ]
     )
     return f"Downloaded: {url}"
