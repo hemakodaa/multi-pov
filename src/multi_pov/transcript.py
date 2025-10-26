@@ -1,10 +1,14 @@
 from youtube_transcript_api import YouTubeTranscriptApi as yt_transcript
 from urllib.parse import urlparse
+from log import log_main
 import re
 import requests
 from bs4 import BeautifulSoup
 import pathlib
 from pathlib import Path
+from constants import LOGGER_BASE
+
+module_logger = log_main(f"{LOGGER_BASE}.{__name__}")
 
 
 def get_video_id(url: str) -> str | None:
@@ -32,7 +36,8 @@ def transcript(url: str):
     md_file = f"{folder_path.joinpath(video_title)}.md"
 
     if Path(md_file).is_file():
-        exit("File already exists!")
+        module_logger.warning(f"File {md_file} exists!")
+        exit()
 
     try:
         Path.mkdir(folder_path)
@@ -44,7 +49,7 @@ def transcript(url: str):
     except FileExistsError:
         pass
 
-    print("Now downloading audio transcription...")
+    module_logger.info(f"Retrieving transcript for {video_id}")
     t = yt_transcript().fetch(video_id=video_id)
     collection = []
     for dictionary in t.to_raw_data():

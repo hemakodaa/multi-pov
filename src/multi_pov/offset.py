@@ -1,9 +1,13 @@
 # read from offset file and determine the offset across different livers
 import csv
+from log import log_main
 from exceptions import FileEmptyError
 from datetime import timedelta
 from pathlib import Path
 from enum import Enum, auto
+from constants import LOGGER_BASE
+
+module_logger = log_main(f"{LOGGER_BASE}.{__name__}")
 
 
 class OffsetType(Enum):
@@ -15,21 +19,22 @@ class OffsetType(Enum):
 def open_csv(offset_file: str) -> list[dict]:
     path_to_file = Path.cwd().joinpath(offset_file)
     try:
+        module_logger.info(f"Reading offset file: {offset_file}")
         with open(path_to_file, "r") as file:
             file = csv.DictReader(file, fieldnames=["streamer", "time", "url"])
             if path_to_file.stat().st_size == 0:
                 raise FileEmptyError("File is empty")
             return [dict for dict in file]
-    except FileNotFoundError as e:
-        print(e)
+    except FileNotFoundError:
+        module_logger.error(f"File not found {offset_file}")
         exit(f"\nFile '{offset_file}' does not exist. Include the file's extension.")
 
 
 def safe_cast_to_int(string: str, default=None) -> int:
     try:
         return int(string)
-    except (ValueError, TypeError) as e:
-        print(e)
+    except (ValueError, TypeError):
+        module_logger.error(f"Unable to convert to int: {string}")
         exit(
             f"\nSummary: {string} is not an integer.\nMake sure timestamps only contain numbers and ':' separator in offset file."
         )

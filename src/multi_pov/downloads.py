@@ -2,7 +2,11 @@ from typing import Callable
 from enum import Enum, auto
 from argparse import Namespace
 from offset import produce_timedelta
+from log import log_main
 import concurrent.futures
+from constants import LOGGER_BASE
+
+module_logger = log_main(f"{LOGGER_BASE}.{__name__}")
 
 
 class DownloadKind(Enum):
@@ -32,6 +36,7 @@ def bulk_download(
     end_msg = []
     match kind:
         case DownloadKind.SECTION:
+            module_logger.info("Spawning workers for section downloads...")
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=args.threads
             ) as executor:
@@ -50,6 +55,7 @@ def bulk_download(
                     end_msg.append(msg)
             return end_msg
         case DownloadKind.FULL:
+            module_logger.info("Spawning workers for full video downloads...")
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=args.threads
             ) as executor:
@@ -77,6 +83,7 @@ def single_download(
 ):
     match kind:
         case DownloadKind.SECTION:
+            module_logger.info(f"Starting single section download: {start} - {end}")
             msg = fn(
                 d.get("list")[0].get("url"),
                 produce_timedelta(start).total_seconds(),
@@ -84,7 +91,9 @@ def single_download(
                 args.resolution,
             )
         case DownloadKind.FULL:
-            msg = fn(d.get("list")[0].get("url"), args.resolution)
+            url = d.get("list")[0].get("url")
+            module_logger.info(f"Starting full video download: {url}")
+            msg = fn(url, args.resolution)
         case _:
             msg = "No video was downloaded."
     return msg

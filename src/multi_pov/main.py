@@ -12,60 +12,9 @@ from datetime import timedelta as td
 from helper import which_site
 import argparse
 import re
+import cli
+from log import make_log
 from notable_moments import notable_activity, notable_keyword
-
-parser = argparse.ArgumentParser(
-    prog="multi-pov", description="Download multiple POVs at once"
-)
-parser.add_argument(
-    "-o",
-    "--offsetfile",
-    help="Filename of the offset file (include extension e.g. .txt)",
-    type=str,
-    metavar="FILENAME",
-)
-parser.add_argument(
-    "-r", "--reference", help="Set the reference streamer", type=str, metavar="NAME"
-)
-parser.add_argument(
-    "-t",
-    "--threads",
-    help="Set the amount of parallel downloads (default=4)",
-    type=int,
-    default=4,
-    metavar="AMOUNT",
-)
-parser.add_argument(
-    "-p",
-    "--resolution",
-    help="Set the maximum resolution (default=1080)",
-    type=int,
-    default=1080,
-)
-parser.add_argument(
-    "-s", "--single", help="Download single videos", type=str, metavar="URL"
-)
-parser.add_argument("--full", help="Download full VODs.", action="store_true")
-parser.add_argument(
-    "-n",
-    "--notable",
-    help="Show notable timestamp from a VOD based on chat activity",
-    type=int,
-    choices=range(1, 101),
-    metavar="PERCENTILE",
-)
-parser.add_argument(
-    "--keyword",
-    help="Show notable timestamps based on keywords appearing in live chat. Use ',' delimiter for multiple keywords",
-    type=str,
-    metavar="REGEX",
-)
-parser.add_argument(
-    "--transcript",
-    help="Get an audio transcription of YouTube video",
-    action="store_true",
-)
-args = parser.parse_args()
 
 
 def start_download(
@@ -79,8 +28,10 @@ def start_download(
     end_msg = []
     match bulk:
         case BulkDownload.YES:
+            module_logger.info("Starting bulk download...")
             end_msg = bulk_download(fn, kind, offset_dict, args, start, end)
         case BulkDownload.NO:
+            module_logger.info("Starting download...")
             end_msg.append(single_download(fn, kind, offset_dict, args, start, end))
         case _:
             end_msg = []
@@ -93,13 +44,16 @@ def sanitize_timestamp_input(input_timestamp: str) -> bool:
     hms = re.match(r"^\d{1,2}:\d{1,2}:\d{1,2}$", input_timestamp)
     if any([s, ms, hms]):
         return True
+    module_logger.warning(f"Wrong timestamp format {input_timestamp}")
     print(
         "Warning: wrong timestamp format. Accepted format: 0-86400 seconds, mm:ss, hh:mm:ss"
     )
     input("Press any key to continue...")
     return False
 
-def notable() -> str:
+
+def notable(args: argparse.Namespace) -> str:
+    module_logger.info("Retrieving moments with notable activity...")
     site = which_site(args.single)
     timestamp = notable_activity(args.single, args.notable, False)
     if site == "youtube":
@@ -116,11 +70,12 @@ def notable() -> str:
     return f"Showing top {100 - args.notable}% of chat activity"
 
 
-def keyword():
+def keyword(args: argparse.Namespace):
     replace_with_pipes = args.keyword.replace(",", "|")
+    module_logger.info(
+        f"Retrieving moments with specified keyword: {replace_with_pipes}"
+    )
     timestamp = notable_keyword(args.single, replace_with_pipes)
-    print(f"Showing activity for keyword: {replace_with_pipes}")
-    # refactor this out, its used in notable() too
     site = which_site(args.single)
     if site == "youtube":
         separator = "&"
@@ -139,13 +94,13 @@ def keyword():
     return f"Showing results for keyword: {replace_with_pipes}"
 
 
-def main():
+def main(args: argparse.Namespace):
     # single download means there's not really a 'reference'
     if args.single:
         if args.notable:
-            exit(notable())
+            exit(notable(args))
         if args.keyword:
-            exit(keyword())
+            exit(keyword(args))
         reference_streamer = {
             "url": args.single,
             "streamer": "single_download" if not args.reference else args.reference,
@@ -161,6 +116,7 @@ def main():
 
     # a full vod download
     if args.full:
+        module_logger.info("Starting full video download...")
         result = start_download(
             full_download,
             DownloadKind.FULL,
@@ -206,6 +162,8 @@ def main():
 
 if __name__ == "__main__":
     # if no arguments is given, print the help page.
+    module_logger = make_log()
+    args, parser = cli.cli_main()
     if not args.offsetfile and not args.single:
         exit(parser.print_help())
-    main()
+    main(args)
