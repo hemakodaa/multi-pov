@@ -83,7 +83,7 @@ def single_download(
 ):
     match kind:
         case DownloadKind.SECTION:
-            module_logger.info(f"Starting single section download: {start} - {end}")
+            module_logger.info(f"Starting {start} - {end} section download for {args.single}")
             msg = fn(
                 d.get("list")[0].get("url"),
                 produce_timedelta(start).total_seconds(),
