@@ -20,7 +20,7 @@ def timestamp_in_range(start: int, end: int) -> bool:
 def fmt_selection(resolution: int, url: str) -> str:
     if which_site(url) == "youtube":
         return (
-            f"bv[height<={resolution}][format_note!*=Premium]+ba"
+            f"bv[height<={resolution}][format_note!*=Premium][ext=mp4]+ba[ext=m4a]"
             f"/bv[height<={resolution}][format_note!*=Premium]+ba"
             f"/bv*[height<={resolution}][format_note!*=Premium]+ba"
             f"bv*[height<={resolution}][format_note!*=Premium]+ba*"
