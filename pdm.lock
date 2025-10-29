@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:f0136ec1e3be6b9d23872aac39339c013d4fa8a889ffdd7880608fad19a52afa"
+content_hash = "sha256:078f7e116b91c825d649466535ddf11a07ad7949226acb72af1a9564bd3cd6de"
 
 [[metadata.targets]]
 requires_python = ">=3.13,<3.14"
@@ -327,9 +327,9 @@ files = [
 
 [[package]]
 name = "notable-moments"
-version = "0.2.3"
+version = "0.2.4"
 requires_python = ">=3.11"
-path = "../notable_moments/dist/notable_moments-0.2.3-py3-none-any.whl"
+path = "../notable_moments/dist/notable_moments-0.2.4-py3-none-any.whl"
 summary = "Get notable timestamps from a YT VOD via livestream chat"
 groups = ["default"]
 dependencies = [
@@ -341,7 +341,7 @@ dependencies = [
     "requests>=2.32.3",
 ]
 files = [
-    {file = "notable_moments-0.2.3-py3-none-any.whl", hash = "sha256:8dcb4cbf43fa2bfba2b881eb6e0de4c95286a6fa8d3b576fbcdf244d950cb948"},
+    {file = "notable_moments-0.2.4-py3-none-any.whl", hash = "sha256:5f850c88d0a4323441cc6fd09d248b5fcd0e6e55091bcb25077e7c6851e65f09"},
 ]
 
 [[package]]
