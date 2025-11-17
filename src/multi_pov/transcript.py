@@ -28,27 +28,6 @@ def get_video_id(url: str) -> str | None:
 
 def transcript(url: str):
     video_id = get_video_id(url)
-    video_title = "_".join(
-        re.findall(r"\w+", BeautifulSoup(requests.get(url).text, "lxml").title.text)
-    )
-    folder_name = "transcript"
-    folder_path = Path.cwd().joinpath(folder_name)
-    md_file = f"{folder_path.joinpath(video_title)}.md"
-
-    if Path(md_file).is_file():
-        module_logger.warning(f"File {md_file} exists!")
-        exit()
-
-    try:
-        Path.mkdir(folder_path)
-    except pathlib.UnsupportedOperation as e:
-        exit(e)
-    except FileNotFoundError as e:
-        print(f"Missing parent in path: {folder_path}")
-        exit(e)
-    except FileExistsError:
-        pass
-
     module_logger.info(f"Retrieving transcript for {video_id}")
     t = yt_transcript().fetch(video_id=video_id)
     collection = []
