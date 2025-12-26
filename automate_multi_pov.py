@@ -2,6 +2,7 @@ from pathlib import PurePath, Path
 import subprocess
 import re
 import argparse
+import csv
 from os import PathLike
 
 parser = argparse.ArgumentParser("Automate multi-pov")
@@ -22,36 +23,29 @@ def main_keyword(txtfile: PathLike):
     lines = []
     # c = re.compile(r"v=(.+)", re.IGNORECASE)
     with open(txtfile, "r+") as f:
-        lines = [i for i in f.readlines()]
+        lines = [tuple(i.split(",")) for i in f.readlines()]
     if not lines:
         exit("lines is empty")
-    for line in lines:
-        # _ = c.search(line)
-        # if Path(
-        #     f"{Path(url_dump_dir).joinpath(kw).joinpath(id.group(1))}.txt"
-        # ).exists():
-        #     print(f"{id.group(1)} exists, Skipping...")
-        # continue
-        _ = subprocess.run(
+    for url, live_status in lines:
+        url = url.strip()
+        live_status = live_status.strip()
+        if live_status != "was_live":
+            print(url + f" is {live_status}")
+            continue
+        result = subprocess.run(
             [
                 "pdm",
                 "run",
                 "main",
                 "-s",
-                line,
+                url,
                 "--keyword",
                 kw,
             ],
             capture_output=True,
         )
-        # with open(
-        #     f"{Path(url_dump_dir).joinpath(kw).joinpath(id.group(1))}.txt", "w+"
-        # ) as f:
-        #     text = output.stdout.decode()
-        #     reconcile_link = re.sub(r"\r\n&", "&", text)
-        #     remove_extra_newline = re.sub(r"\r\n\[", "\n[", reconcile_link)
-        #     f.write(remove_extra_newline)
-        print(line + " finished.")
+        print(result)
+        print(url + " finished.")
 
 
 def main_transcript(streamer: str, url_dump_dir: PathLike, txtfile: PathLike):
@@ -64,11 +58,16 @@ def main_transcript(streamer: str, url_dump_dir: PathLike, txtfile: PathLike):
     lines = []
     c = re.compile(r"v=(.+)", re.IGNORECASE)
     with open(txtfile, "r+") as f:
-        lines = [i for i in f.readlines()]
+        lines = [tuple(i.split(",")) for i in f.readlines()]
     if not lines:
         exit("variable 'lines' is empty")
-    for line in lines:
-        id = c.search(line)
+    for url, live_status in lines:
+        url = url.strip()
+        live_status = live_status.strip()
+        if live_status != "was_live":
+            print(url + f" is {live_status}")
+            continue
+        id = c.search(url)
         current_filepath = f"{Path(url_dump_dir).joinpath('transcripts').joinpath(streamer).joinpath(id.group(1))}.md"
         if Path(current_filepath).exists():
             print(f"{current_filepath} already exists\nSkipping...\n")
@@ -79,7 +78,7 @@ def main_transcript(streamer: str, url_dump_dir: PathLike, txtfile: PathLike):
                 "run",
                 "main",
                 "-s",
-                line,
+                url,
                 "--transcript",
             ],
             capture_output=True,
@@ -89,7 +88,7 @@ def main_transcript(streamer: str, url_dump_dir: PathLike, txtfile: PathLike):
             "w+",
         ) as f:
             f.write(output.stdout.decode(errors="ignore"))
-        print(line + " finished.")
+        print(url + " finished.")
 
 
 def main(args: argparse.Namespace):
