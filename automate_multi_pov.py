@@ -2,7 +2,8 @@ from pathlib import PurePath, Path
 import subprocess
 import re
 import argparse
-import csv
+import sqlite3
+from urllib.parse import urlparse
 from os import PathLike
 
 parser = argparse.ArgumentParser("Automate multi-pov")
@@ -13,24 +14,51 @@ parser.add_argument(
 parser.add_argument("--chat", help="Download all chat", action="store_true")
 
 
+def get_video_id(url: str) -> str | None:
+    parse_url = urlparse(url)
+    m = None
+    if "watch" in parse_url.path:
+        q = parse_url.query
+        if "&" in q:
+            m = re.search(r"v=([\w-]+)&", q, re.IGNORECASE)
+        else:
+            m = re.search(r"v=([\w-]+)", q, re.IGNORECASE)
+    if "live" in parse_url.path:
+        p = parse_url.path
+        m = re.search(r"live\/([\w-]+)", p, re.IGNORECASE)
+    return m if not m else m.group(1)
+
+
 def main_keyword(txtfile: PathLike):
     # ====================
     # PUT KEYWORD HERE
     kw = "lol,lmao"
+    DB_PATH = "db/chat.db"
     # kw = "buh"
     # ===================
 
     lines = []
     # c = re.compile(r"v=(.+)", re.IGNORECASE)
+    # NOTE: must add a db checker here to skip existing chat entries
+    # otherwise we just go through *all* of the urls in the list.
     with open(txtfile, "r+") as f:
         lines = [tuple(i.split(",")) for i in f.readlines()]
     if not lines:
         exit("lines is empty")
+    cur = sqlite3.connect(DB_PATH).cursor()
+    existing_yt_id: list[str] = [
+        i[0].strip() for i in cur.execute("SELECT name from sqlite_sequence").fetchall()
+    ]
+    if not existing_yt_id:
+        exit("db returns empty")
     for url, live_status in lines:
         url = url.strip()
+        yt_id = get_video_id(url)
         live_status = live_status.strip()
         if live_status != "was_live":
             print(url + f" is {live_status}")
+            continue
+        if yt_id in existing_yt_id:
             continue
         result = subprocess.run(
             [
