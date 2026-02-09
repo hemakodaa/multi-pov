@@ -3,6 +3,7 @@ import subprocess
 import re
 import argparse
 import sqlite3
+from queue import SimpleQueue
 from urllib.parse import urlparse
 from os import PathLike
 
@@ -41,8 +42,9 @@ def main_keyword(txtfile: PathLike):
     # c = re.compile(r"v=(.+)", re.IGNORECASE)
     # NOTE: must add a db checker here to skip existing chat entries
     # otherwise we just go through *all* of the urls in the list.
+    lines = SimpleQueue()
     with open(txtfile, "r+") as f:
-        lines = [tuple(i.split(",")) for i in f.readlines()]
+        _ = [lines.put(tuple(i.split(","))) for i in f.readlines()]
     if not lines:
         exit("lines is empty")
     cur = sqlite3.connect(DB_PATH).cursor()
@@ -51,7 +53,8 @@ def main_keyword(txtfile: PathLike):
     ]
     if not existing_yt_id:
         exit("db returns empty")
-    for url, live_status in lines:
+    while True:
+        url, live_status = lines.get()
         url = url.strip()
         yt_id = get_video_id(url)
         live_status = live_status.strip()
@@ -74,6 +77,10 @@ def main_keyword(txtfile: PathLike):
         )
         print(result)
         print(url + " finished.")
+        if lines.qsize() < 1:
+            break
+        print(f"Remaining: {lines.qsize()}")
+
 
 
 def main_transcript(streamer: str, url_dump_dir: PathLike, txtfile: PathLike):
@@ -120,8 +127,9 @@ def main_transcript(streamer: str, url_dump_dir: PathLike, txtfile: PathLike):
 
 
 def main(args: argparse.Namespace):
+    url_dir = PurePath(r"F:\dhaclips\scrape_tube\files")
     url_dump_dir = PurePath("video_url_dumps")
-    txtfile = url_dump_dir.joinpath(args.streamer + "-videos.txt")
+    txtfile = url_dir.joinpath(args.streamer + "-videos.txt")
     if args.transcript:
         main_transcript(args.streamer, url_dump_dir, txtfile)
     if args.chat:
